@@ -1,0 +1,36 @@
+# Define the threshold percentage
+$threshold = 80
+
+# Get the total and available memory
+$totalMemory = Get-WmiObject Win32_OperatingSystem | ForEach-Object { $_.TotalVisibleMemorySize / 1KB }
+$freeMemory = Get-WmiObject Win32_OperatingSystem | ForEach-Object { $_.FreePhysicalMemory / 1KB }
+
+# Calculate the used memory percentage
+$usedMemory = $totalMemory - $freeMemory
+$usedMemoryPercentage = ($usedMemory / $totalMemory) * 100
+
+# Define the alert action
+function Send-Alert {
+    param (
+        [string]$message
+    )
+
+    # You can customize this section to send an email, log to a file, etc.
+    # Example: Sending an email (assuming SMTP server is configured)
+    $smtpServer = "smtp.yourdomain.com"
+    $from = "admin@yourdomain.com"
+    $to = "recipient@yourdomain.com"
+    $subject = "Memory Usage Alert"
+    $body = $message
+
+    Send-MailMessage -SmtpServer $smtpServer -From $from -To $to -Subject $subject -Body $body
+}
+
+# Check if the used memory exceeds the threshold
+if ($usedMemoryPercentage -gt $threshold) {
+    $alertMessage = "Alert: Memory usage is at $([math]::Round($usedMemoryPercentage, 2))%. Threshold is $threshold%."
+    Write-Output $alertMessage
+    Send-Alert -message $alertMessage
+} else {
+    Write-Output "Memory usage is within acceptable limits: $([math]::Round($usedMemoryPercentage, 2))%."
+}
