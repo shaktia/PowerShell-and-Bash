@@ -1,0 +1,40 @@
+# Define source and destination directories
+$source = "C:\Path\To\Source\Directory"
+$destination = "C:\Path\To\Destination\Directory"
+$logFile = "C:\Path\To\Log\backup_log.txt"
+
+# Create destination directory if it doesn't exist
+if (-not (Test-Path -Path $destination)) {
+    New-Item -ItemType Directory -Path $destination
+}
+
+# Function to log messages
+function Log-Message {
+    param (
+        [string]$message
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Add-Content -Path $logFile -Value "$timestamp - $message"
+}
+
+# Start backup process
+try {
+    Copy-Item -Path $source -Destination $destination -Recurse -Force
+    Log-Message "Backup completed successfully."
+} catch {
+    Log-Message "Backup failed. Error: $_"
+}
+
+# Verify backup by comparing source and destination
+try {
+    $sourceFiles = Get-ChildItem -Path $source -Recurse
+    $destinationFiles = Get-ChildItem -Path $destination -Recurse
+
+    if ($sourceFiles.Count -eq $destinationFiles.Count) {
+        Log-Message "Backup verification succeeded. All files are copied."
+    } else {
+        Log-Message "Backup verification failed. File count mismatch."
+    }
+} catch {
+    Log-Message "Backup verification failed. Error: $_"
+}
