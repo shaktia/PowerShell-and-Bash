@@ -1,0 +1,23 @@
+example of using PowerShell to deploy updates via WSUS:
+
+Approve Updates in WSUS:
+
+powershell
+Copy code
+Import-Module UpdateServices
+$wsus = Get-WsusServer -Name "YourWSUSServer" -Port 8530
+$update = $wsus.GetUpdate("UpdateID")
+$update.Approve("Install", $wsus.GetComputerTargetGroups() | Where-Object { $_.Name -eq "TargetGroupName" })
+PowerShell Script to Trigger Update Installation on Clients:
+
+powershell
+Copy code
+$servers = Get-Content -Path "servers.txt"
+$scriptBlock = {
+    Invoke-WUJob -ComputerName $env:COMPUTERNAME -Script {
+        Invoke-WUInstall -AcceptAll -IgnoreReboot
+    } -Confirm:$false
+}
+foreach ($server in $servers) {
+    Invoke-Command -ComputerName $server -ScriptBlock $scriptBlock
+}
