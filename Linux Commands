@@ -1,0 +1,83 @@
+common Linux commands related to user and file permissions.
+
+User Management Commands with Examples
+1. Create a New User
+sudo adduser john
+This command creates a new user named john and sets up a home directory for him. It will prompt for a password and other information.
+2. Delete a User
+sudo deluser john
+This command removes the user account john. It does not delete the home directory by default. To remove the home directory as well, use:
+sudo deluser --remove-home john
+3. Modify a User
+sudo usermod -aG sudo john
+Adds the user john to the sudo group, allowing him to execute commands with superuser privileges.
+4. List Users
+cat /etc/passwd
+Displays a list of all user accounts on the system.
+5. Get User Information
+id john
+Displays user ID (uid), group ID (gid), and group memberships for john.
+6. List Groups
+cat /etc/group
+Displays all the groups on the system.
+7. Add a User to a Group
+sudo usermod -aG developers john
+Adds the user john to the developers group.
+File and Directory Permission Commands with Examples
+1. Change File/Directory Permissions
+chmod 755 /path/to/file
+Sets the permissions of /path/to/file to rwxr-xr-x.
+2. Change File/Directory Ownership
+chown john:developers /path/to/file
+Changes the ownership of /path/to/file to the user john and the group developers.
+3. Change Group Ownership
+chgrp developers /path/to/file
+Changes the group ownership of /path/to/file to developers.
+4. View File/Directory Permissions
+ls -l /path/to/file
+Displays detailed information about /path/to/file, including permissions, ownership, size, and modification date.
+-rwxr-xr-x 1 john developers 1234 Jul 31 10:00 /path/to/file
+5. View File/Directory ACL (Access Control List)
+getfacl /path/to/file
+Displays the ACLs for /path/to/file.
+# file: /path/to/file
+# owner: john
+# group: developers
+user::rwx
+user:mary:r--
+group::r-x
+mask::r-x
+other::r--
+6. Set File/Directory ACL
+setfacl -m u:mary:rwx /path/to/file
+Sets read, write, and execute permissions for the user mary on /path/to/file.
+7. View Detailed File Information
+stat /path/to/file
+Displays detailed information about /path/to/file.
+File: /path/to/file
+Size: 1234       Blocks: 8          IO Block: 4096   regular file
+Device: 801h/2049d    Inode: 657482      Links: 1
+Access: (0755/-rwxr-xr-x)  Uid: ( 1001/   john)   Gid: ( 1001/developers)
+Access: 2024-07-31 10:00:00.000000000 +0000
+Modify: 2024-07-31 10:00:00.000000000 +0000
+Change: 2024-07-31 10:00:00.000000000 +0000
+8. List Open Files and Their Associated Processes
+lsof
+Lists open files and the processes that opened them. For example, to list files opened by a specific user:
+lsof -u john
+Example Scenario
+Let's say you have a user named john who needs to have access to the developers group and requires permission to execute a specific script. Here's how you might handle that:
+
+Add User to Developers Group:
+sudo usermod -aG developers john
+Create a Script File:
+echo '#!/bin/bash' > /home/john/test_script.sh
+echo 'echo "Hello, World!"' >> /home/john/test_script.sh
+Set Permissions on the Script:
+chmod 755 /home/john/test_script.sh
+Change Ownership of the Script:
+chown john:developers /home/john/test_script.sh
+Verify the Permissions:
+ls -l /home/john/test_script.sh
+Output:
+-rwxr-xr-x 1 john developers 28 Jul 31 10:30 /home/john/test_script.sh
